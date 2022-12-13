@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using CustomerContacts.Data;
 using CustomerContacts.Dtos;
 using CustomerContacts.Interfaces;
@@ -19,23 +19,23 @@ namespace CustomerContacts.Controllers
         }
 
         [HttpGet("GetAllCustomers")]
-        public IActionResult GetAllContacts()
+        public IActionResult GetAllCustomers()
         {
             if (ModelState.IsValid)
             {
-                var customers = _customersRepository.GetAll(new[] { "Contact" }).Select(Mapper.Map<Customer, CustomerDto>);
-                return (customers == null || !customers.Any()) ? NotFound() : Ok(customers);
+                var customersDto = _customersRepository.GetAll(new[] { "Contact" }).Select(Mapper.Map<Customer, CustomerDto>);
+                return (customersDto == null || !customersDto.Any()) ? NotFound() : Ok(customersDto);
             }
             return BadRequest();
         }
 
         [HttpPost]
-        public IActionResult SaveCustomer([FromBody] CustomerDto customerDto)
+        public IActionResult AddCustomer([FromBody]CustomerDto customerDto)
         {
             if (ModelState.IsValid)
             {
-                var isAlreadyCustomer = _customersRepository.Find(c => c.Id == customerDto.Id, new[] { "Contact" });
-                if (isAlreadyCustomer == null)
+                var customerInDb = _customersRepository.Find(c => c.Id == customerDto.Id, new[] { "Contact" });
+                if (customerInDb == null)
                 {
                     var customer = Mapper.Map<CustomerDto, Customer>(customerDto);
                     _customersRepository.Post(customer);
@@ -51,7 +51,7 @@ namespace CustomerContacts.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateCustomer([FromRoute] int id, [FromBody]ContactDto newContact)
+        public IActionResult UpdateCustomer([FromRoute]int id, [FromBody]ContactDto newContact)
         {
             if(ModelState.IsValid)
             {
@@ -72,7 +72,7 @@ namespace CustomerContacts.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteCustomer(int id)
+        public IActionResult DeleteCustomer([FromRoute]int id)
         {
             if (ModelState.IsValid)
             {
